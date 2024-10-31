@@ -4,8 +4,8 @@
  * Plugin Name:       Modularity Digital Noticeboard
  * Plugin URI:        https://github.com/horby/modularity-noticeboard
  * Description:       Adds Noticeboard modules to Modularity
- * Version:           1.0.0
- * Author:            Anders Fajerson
+ * Version:           1.1.0
+ * Author:            Anders Fajerson, Michael Claesson
  * Author URI:        https://github.com/horby
  * License:           MIT
  * License URI:       https://opensource.org/licenses/MIT
