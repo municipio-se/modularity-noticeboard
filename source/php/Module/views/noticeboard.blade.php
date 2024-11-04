@@ -1,8 +1,14 @@
 <div class="{{ $classes }}">
-    <h4 class="box-title">{{ $postTitle }}</h4>
+    @typography([
+        'variant' => 'h4',
+        'element' => 'h4',
+        'classList' => ['box-title']
+    ])
+        {{ $postTitle }}
+    @endtypography
 
     @if (!empty($introductoryText))
-        {!! wpautop($introductoryText) !!}
+        {!! $introductoryText !!}
     @endif
 
     <ul>
@@ -13,13 +19,13 @@
                 @else
                     {{ $postItem['title'] }} {{ $postItem['meetingDate'] }}
                 @endif
-                Anslaget: {{ $postItem['published'] }}
+                {{ $strings['posted'] }}: {{ $postItem['published'] }}
                 @if ($postItem['unpubDate'])
-                    Tas ner: {{ $postItem['unpubDate'] }}
+                    {{ $strings['taken_down'] }}: {{ $postItem['unpubDate'] }}
                 @endif
             </li>
         @empty
-            <li>Inga inlägg tillgängliga.</li>
+            <li>{{ $strings['no_posts'] }}</li>
         @endforelse
     </ul>
 </div>

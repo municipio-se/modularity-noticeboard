@@ -39,6 +39,28 @@ class Noticeboard extends \Modularity\Module {
             get_fields($this->ID)
         ));
 
+        $posts = $this->get_posts($data['filterPostsByTag']);
+
+        $data = array_merge($data, [
+            'classes' => implode(' ', apply_filters('Modularity/Module/Classes', ['box', 'box-panel'], $this->post_type, $this->args)),
+            'postTitle' => $postTitle ?? '',
+            'introductoryText' => isset($introductoryText) ? wpautop($introductoryText) : '',
+            'postItems' => $posts,
+            'strings' => $this->get_strings(),
+        ]);
+
+        return $data;
+    }
+
+    private function get_strings() {
+        return [
+            'posted' => __('Posted', 'modularity-noticeboard'),
+            'taken_down' => __('To be taken down', 'modularity-noticeboard'),
+            'no_posts' => __('No posts available.', 'modularity-noticeboard'),
+        ];
+    }
+
+    private function get_posts($tags = []) {
         $getPostsArgs = [
             'post_type' => MODULARITYNOTICEBOARD_POST_TYPE,
             'posts_per_page' => -1,
@@ -47,7 +69,7 @@ class Noticeboard extends \Modularity\Module {
             'tax_query' => [[
                 'taxonomy' => MODULARITYNOTICEBOARD_TAXONOMY,
                 'field' => 'term_id',
-                'terms' => intval($data['filterPostsByTag']),
+                'terms' => intval($tags),
             ]],
         ];
 
@@ -99,14 +121,5 @@ class Noticeboard extends \Modularity\Module {
                 'link' => $link,
             ];
         }
-
-        $data = array_merge($data, [
-            'classes' => implode(' ', apply_filters('Modularity/Module/Classes', ['box', 'box-panel'], $this->post_type, $this->args)),
-            'postTitle' => $postTitle ?? '',
-            'introductoryText' => $introductoryText ?? '',
-            'postItems' => $postItems,
-        ]);
-
-        return $data;
     }
 }
