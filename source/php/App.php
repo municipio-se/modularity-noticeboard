@@ -2,59 +2,72 @@
 
 namespace ModularityNoticeboard;
 
-class App
-{
+class App {
     public $Roles = null;
 
-    public function __construct()
-    {
-        add_action('Modularity', function () {
-            new \ModularityNoticeboard\Module\Noticeboard();
-        });
-
+    public function __construct() {
         $this->Roles = new \ModularityNoticeboard\Admin\Roles\General();
 
+        //Register module
+        add_action('plugins_loaded', array($this, 'registerModule'));
+
+        // Create post type and taxonomy
         add_action('init', array($this, 'create_post_type'));
         add_action('init', array($this, 'create_taxonomy'));
 
-        add_filter( 'wp_insert_post_data', array($this, 'set_unpublish_date'), '99', 2 );
+        // Support for unpublished date
+        add_filter('wp_insert_post_data', array($this, 'set_unpublish_date'), '99', 2);
 
-        add_filter( 'wp_stream_record_array', array($this, 'modify_stream_title'));
-
+        // Load ACF field groups
         add_filter('acf/settings/load_json', array($this, 'jsonLoadPath'));
+
+        add_filter('wp_stream_record_array', array($this, 'modify_stream_title'));
     }
 
-    public function jsonLoadPath($paths)
-    {
+    /**
+     * Register the module
+     * @return void
+     */
+    public function registerModule() {
+        if (function_exists('modularity_register_module')) {
+            modularity_register_module(
+                MODULARITYNOTICEBOARD_PATH . 'source/php/Module/',
+                'Noticeboard'
+            );
+        }
+    }
+
+    public function jsonLoadPath($paths) {
         $paths[] = MODULARITYNOTICEBOARD_PATH . 'source/acf-json';
         return $paths;
     }
 
     public function create_post_type() {
-        register_post_type(MODULARITYNOTICEBOARD_POST_TYPE,
+        register_post_type(
+            MODULARITYNOTICEBOARD_POST_TYPE,
             array(
                 'labels' => array(
-                    'name' => __( 'Announcement' ),
-                    'singular_name' => __( 'Announcements' )
-                    ),
+                    'name' => __('Announcement'),
+                    'singular_name' => __('Announcements')
+                ),
                 'public' => false,
                 'show_ui' => true,
                 'has_archive' => false,
                 'rewrite' => false,
                 'supports' => array('title'),
-                'capability_type'     => array('mod_noticeboard_announcement','mod_noticeboard_announcements'),
+                'capability_type'     => array('mod_noticeboard_announcement', 'mod_noticeboard_announcements'),
                 'map_meta_cap'        => true,
-                )
-            );
+            )
+        );
     }
 
     public function create_taxonomy() {
         $args = array(
             'hierarchical' => true,
-            'label' => __( 'Announcement type'),
-            'public' => false, // Hide from post screen. Unfortunately this also hides it from the navbar.
+            'label' => __('Announcement type'),
+            'public' => true,
             'publicly_queryable' => false,
-            'show_in_nav_menus' => false,
+            'show_in_nav_menus' => true,
             'query_var' => false,
             'rewrite' => false,
         );
@@ -80,8 +93,7 @@ class App
                 if (!empty($meeting_date)) {
                     $unpublish_date = strtotime("$meeting_date + 1 day");
                 }
-            }
-            else {
+            } else {
                 // Unpublish 23 days after post date.
                 $post_date = mysql2date('U', $postarr['post_date']);
                 $unpublish_date = strtotime("+ 23 days", $post_date);
@@ -93,15 +105,14 @@ class App
                 $_POST['unpublish-aa'] = date('Y', $unpublish_date);
                 $_POST['unpublish-hh'] = '00';
                 $_POST['unpublish-mn'] = '00';
-                $_POST['unpublish-active'] = 'true';
             }
         }
         return $data;
     }
 
     /**
-    * Add meeting date to stream log so it can be searched in free-text search.
-    */
+     * Add meeting date to stream log so it can be searched in free-text search.
+     */
     public function modify_stream_title($record) {
         if ($record['context'] == MODULARITYNOTICEBOARD_POST_TYPE) {
             $meeting_date = isset($_POST['acf'][MODULARITYNOTICEBOARD_MEETINGDATE_ACF_FIELD]) ? $_POST['acf'][MODULARITYNOTICEBOARD_MEETINGDATE_ACF_FIELD] : false;
