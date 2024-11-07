@@ -18,9 +18,6 @@ class App {
         // Support for unpublished date
         add_filter('wp_insert_post_data', array($this, 'set_unpublish_date'), '99', 2);
 
-        // Load ACF field groups
-        add_filter('acf/settings/load_json', array($this, 'jsonLoadPath'));
-
         add_filter('wp_stream_record_array', array($this, 'modify_stream_title'));
     }
 
@@ -35,11 +32,6 @@ class App {
                 'Noticeboard'
             );
         }
-    }
-
-    public function jsonLoadPath($paths) {
-        $paths[] = MODULARITYNOTICEBOARD_PATH . 'source/acf-json';
-        return $paths;
     }
 
     public function create_post_type() {
@@ -65,9 +57,9 @@ class App {
         $args = array(
             'hierarchical' => true,
             'label' => __('Announcement type'),
-            'public' => true,
+            'public' => false,
             'publicly_queryable' => false,
-            'show_in_nav_menus' => true,
+            'show_in_nav_menus' => false,
             'query_var' => false,
             'rewrite' => false,
         );

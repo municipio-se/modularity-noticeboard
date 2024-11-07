@@ -120,6 +120,8 @@ class Noticeboard extends \Modularity\Module {
                 'meetingDate' => $meetingDate,
                 'link' => $link,
             ];
+
+            return $postItems;
         }
     }
 }

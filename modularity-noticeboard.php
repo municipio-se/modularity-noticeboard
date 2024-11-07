@@ -43,5 +43,17 @@ $loader->register();
 // Start application
 $modularityNoticeboardApp = new ModularityNoticeboard\App();
 
+// Acf auto import and export
+add_action('acf/init', function () {
+    $acfExportManager = new \AcfExportManager\AcfExportManager();
+    $acfExportManager->setTextdomain('modularity-noticeboard');
+    $acfExportManager->setExportFolder(MODULARITYNOTICEBOARD_PATH . 'source/php/AcfFields/');
+    $acfExportManager->autoExport(array(
+        'module' => 'group_57da9a06e21a8',
+        'post-type' => 'group_57db7edf10454',
+    ));
+    $acfExportManager->import();
+});
+
 register_activation_hook(__FILE__, array($modularityNoticeboardApp, 'install'));
 register_deactivation_hook(__FILE__, array($modularityNoticeboardApp, 'uninstall'));
